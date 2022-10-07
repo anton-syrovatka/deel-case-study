@@ -1,23 +1,27 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+
+import Autocomplete from "./Autocomplete";
+import AutocompleteAsync from "./AutocompleteAsync";
+
+import { countries } from "./data";
+import { useGetCountries } from "./api";
+
+import "./App.css";
 
 function App() {
+  const [asyncInput, setAsyncInput] = React.useState<string>("");
+  const { data, loading } = useGetCountries({ input: asyncInput });
+
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <Autocomplete label="Sync Autocomplete" options={countries} />
+        <AutocompleteAsync
+          label="Async Autocomplete"
+          options={data}
+          onChange={setAsyncInput}
+          loading={loading}
+        />
       </header>
     </div>
   );
