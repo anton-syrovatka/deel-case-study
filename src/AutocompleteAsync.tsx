@@ -46,6 +46,7 @@ const Autocomplete = ({
     if (!index) {
       return;
     }
+
     const active = parseInt(index, 10);
     setActive(0);
     setInput(options[active]);

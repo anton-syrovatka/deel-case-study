@@ -43,11 +43,9 @@ export const useGetCountries = ({
         setData(filteredCountries);
         controller = null;
       } catch (e: any) {
+        setData([]);
+      } finally {
         setLoading(false);
-
-        if (!input) {
-          setData([]);
-        }
       }
     })();
   }, [input, setLoading, setData]);
