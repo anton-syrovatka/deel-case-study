@@ -14,13 +14,13 @@
 - Context API
 - We can send child component ref information to its parent component.
 
-## 4 Give 2 ways to prevent components from re-rendering.
+## 4. Give 2 ways to prevent components from re-rendering.
 
 - use PureComponent or shouldComponentUpdate
 - React.memo together with useMemo and useCallback hooks
 - React.memo and comparisonFunction
 
-## 5 What is a fragment and why do we need it? Give an example where it might break my app.
+## 5. What is a fragment and why do we need it? Give an example where it might break my app.
 
 - let's simply convert jsx to react functions
 
