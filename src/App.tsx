@@ -4,13 +4,15 @@ import Autocomplete from "./Autocomplete";
 import AutocompleteAsync from "./AutocompleteAsync";
 
 import { countries } from "./data";
+import { useDebounce } from "./utils";
 import { useGetCountries } from "./api";
 
 import "./App.css";
 
 function App() {
   const [asyncInput, setAsyncInput] = React.useState<string>("");
-  const { data, loading } = useGetCountries({ input: asyncInput });
+  const { value: debouncedAsyncInput } = useDebounce(asyncInput, 500);
+  const { data, loading } = useGetCountries({ input: debouncedAsyncInput });
 
   return (
     <div className="App">

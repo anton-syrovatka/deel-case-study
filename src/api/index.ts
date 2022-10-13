@@ -19,6 +19,10 @@ export const useGetCountries = ({
     let controller: AbortController | null = new AbortController();
     setLoading(true);
 
+    if (!input) {
+      return setData([]);
+    }
+
     (async () => {
       try {
         const response = await fetch(
