@@ -11,7 +11,7 @@ import "./App.css";
 
 function App() {
   const [asyncInput, setAsyncInput] = React.useState<string>("");
-  const { value: debouncedAsyncInput } = useDebounce(asyncInput, 500);
+  const { value: debouncedAsyncInput } = useDebounce(asyncInput, 300);
   const { data, loading } = useGetCountries({ input: debouncedAsyncInput });
 
   return (

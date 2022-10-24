@@ -1,5 +1,5 @@
 import React from "react";
-
+import { useOutsideClick } from "./utils";
 import Word from "./components/Word";
 import "./Autocomplete.css";
 
@@ -19,6 +19,11 @@ const Autocomplete = ({
   const [isShow, setIsShow] = React.useState<boolean>(false);
   const [active, setActive] = React.useState<number>(0);
   const [input, setInput] = React.useState<string>("");
+  const divRef = React.useRef<HTMLDivElement>(null);
+
+  useOutsideClick(divRef, () => {
+    setIsShow(false);
+  });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const input = e.target.value;
@@ -54,7 +59,7 @@ const Autocomplete = ({
   };
 
   return (
-    <div className="autocomplete">
+    <div className="autocomplete" ref={divRef}>
       {label && (
         <label htmlFor="sync-auto">
           {label} {loading && "loading"}

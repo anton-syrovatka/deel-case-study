@@ -24,9 +24,6 @@ input[type="submit"] {
   cursor: pointer;
 }
 
-.loading {
-}
-
 .autocomplete-items {
   position: absolute;
   border: 1px solid #d4d4d4;
