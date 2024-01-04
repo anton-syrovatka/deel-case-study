@@ -21,6 +21,11 @@ const Autocomplete = ({
   const [input, setInput] = React.useState<string>("");
   const divRef = React.useRef<HTMLDivElement>(null);
 
+  const updateValue = (value: string) => {
+    setInput(value);
+    onChange(value);
+  };
+
   useOutsideClick(divRef, () => {
     setIsShow(false);
   });
@@ -29,15 +34,14 @@ const Autocomplete = ({
     const input = e.target.value;
 
     setActive(0);
-    setInput(input);
-    onChange(input);
+    updateValue(input);
     setIsShow(true);
   };
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.code === "Enter") {
       setActive(0);
-      setInput(options[active]);
+      updateValue(options[active]);
       setIsShow(false);
     } else if (e.code === "ArrowUp") {
       return active === 0 ? null : setActive(active - 1);
@@ -54,7 +58,7 @@ const Autocomplete = ({
 
     const active = parseInt(index, 10);
     setActive(0);
-    setInput(options[active]);
+    updateValue(options[active]);
     setIsShow(false);
   };
 

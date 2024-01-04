@@ -1,39 +1,37 @@
 import React from "react";
+import get from "./get";
 
-type useGetCountriesProps = {
-  input: string;
-};
+type CountriesData = {
+  name: {
+    common: string;
+  };
+}[];
 
-type useGetCountriesReturn = {
+type UseGetCountriesReturn = {
   loading: boolean;
   data: string[];
 };
 
-export const useGetCountries = ({
-  input,
-}: useGetCountriesProps): useGetCountriesReturn => {
+export const useGetCountries = (input: string): UseGetCountriesReturn => {
   const [loading, setLoading] = React.useState<boolean>(false);
   const [data, setData] = React.useState<string[]>([]);
 
   React.useEffect(() => {
-    let controller: AbortController | null = new AbortController();
     setLoading(true);
 
     if (!input) {
       return setData([]);
     }
 
-    (async () => {
-      try {
-        const response = await fetch(
-          `https://restcountries.com/v3.1/name/${input}`,
-          {
-            signal: controller.signal,
-          }
-        );
+    const controller = new AbortController();
 
-        const result: any[] = await response.json();
-        const countries: string[] = result.map((c) => c.name.common);
+    (async (controller) => {
+      try {
+        const data = await get<CountriesData>(
+          `https://restcountries.com/v3.1/name/${input}`,
+          controller
+        );
+        const countries = data.map((c) => c.name.common);
 
         const filteredCountries = input
           ? countries.filter(
@@ -45,13 +43,16 @@ export const useGetCountries = ({
 
         setLoading(false);
         setData(filteredCountries);
-        controller = null;
       } catch (e: any) {
         setData([]);
       } finally {
         setLoading(false);
       }
-    })();
+    })(controller);
+
+    return () => {
+      controller.abort();
+    };
   }, [input, setLoading, setData]);
 
   return { loading, data };

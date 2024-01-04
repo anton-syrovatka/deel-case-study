@@ -1,13 +1,6 @@
 import React from "react";
 
-type useDebounceReturn = {
-  value: string;
-};
-
-export const useDebounce = (
-  value: string,
-  delay: number
-): useDebounceReturn => {
+export const useDebounce = (value: string, delay: number): string => {
   const [debouncedValue, setDebouncedValue] = React.useState(value);
 
   React.useEffect(() => {
@@ -18,7 +11,7 @@ export const useDebounce = (
     };
   }, [delay, value]);
 
-  return { value: debouncedValue };
+  return debouncedValue;
 };
 
 export const useOutsideClick = (
