@@ -1,33 +1,27 @@
-import React from "react";
-import get from "./get";
+import React from 'react';
+import get from './get';
 
-type CountriesData = {
+interface Country {
   name: {
     common: string;
   };
-}[];
+}
 
-type UseGetCountriesReturn = {
-  loading: boolean;
-  data: string[];
-};
-
-export const useGetCountries = (input: string): UseGetCountriesReturn => {
-  const [loading, setLoading] = React.useState<boolean>(false);
+export const useGetCountries = (input: string) => {
+  const [loading, setLoading] = React.useState(false);
   const [data, setData] = React.useState<string[]>([]);
 
   React.useEffect(() => {
-    setLoading(true);
-
     if (!input) {
       return setData([]);
     }
 
+    setLoading(true);
     const controller = new AbortController();
 
     (async (controller) => {
       try {
-        const data = await get<CountriesData>(
+        const data = await get<Country[]>(
           `https://restcountries.com/v3.1/name/${input}`,
           controller
         );
@@ -53,7 +47,7 @@ export const useGetCountries = (input: string): UseGetCountriesReturn => {
     return () => {
       controller.abort();
     };
-  }, [input, setLoading, setData]);
+  }, [input]);
 
   return { loading, data };
 };

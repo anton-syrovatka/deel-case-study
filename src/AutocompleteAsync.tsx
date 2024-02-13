@@ -1,72 +1,106 @@
-import React from "react";
-import { useOutsideClick } from "./utils";
-import Word from "./components/Word";
-import "./Autocomplete.css";
+import {
+  ChangeEvent,
+  ElementRef,
+  useEffect,
+  useRef,
+  useState,
+  KeyboardEvent,
+  MouseEvent,
+} from 'react';
+import { useOutsideClick } from './utils';
+import Word from './components/Word';
+import './Autocomplete.css';
 
-type AutocompleteProps = {
+type Props = {
   label?: string;
   loading?: boolean;
   options: string[];
   onChange: (input: string) => void;
 };
 
-const Autocomplete = ({
-  label,
-  loading,
-  options,
-  onChange,
-}: AutocompleteProps) => {
-  const [isShow, setIsShow] = React.useState<boolean>(false);
-  const [active, setActive] = React.useState<number>(0);
-  const [input, setInput] = React.useState<string>("");
-  const divRef = React.useRef<HTMLDivElement>(null);
+function Autocomplete({ label, loading, options, onChange }: Props) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [input, setInput] = useState('');
+
+  const autocompleteRef = useRef<ElementRef<'div'>>(null);
+  const listRef = useRef<ElementRef<'ul'>>(null);
+
+  useOutsideClick(autocompleteRef, () => {
+    setIsOpen(false);
+  });
+
+  useEffect(() => {
+    // Scroll to active options when it goes beyond the visible part
+    if (listRef.current && activeIndex !== -1) {
+      const activeElement = listRef.current.children[activeIndex];
+
+      if (activeElement) {
+        activeElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+        });
+      }
+    }
+  }, [activeIndex]);
 
   const updateValue = (value: string) => {
     setInput(value);
     onChange(value);
   };
 
-  useOutsideClick(divRef, () => {
-    setIsShow(false);
-  });
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const input = e.target.value;
 
-    setActive(0);
+    setActiveIndex(0);
+    setIsOpen(true);
     updateValue(input);
-    setIsShow(true);
   };
 
-  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.code === "Enter") {
-      setActive(0);
-      updateValue(options[active]);
-      setIsShow(false);
-    } else if (e.code === "ArrowUp") {
-      return active === 0 ? null : setActive(active - 1);
-    } else if (e.code === "ArrowDown") {
-      return active - 1 === options.length ? null : setActive(active + 1);
+  const handleInputKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (['Escape', 'Enter', 'ArrowUp', 'ArrowDown'].includes(e.code)) {
+      e.preventDefault();
+    }
+    console.log({ code: e.code, key: e.key });
+    switch (e.code) {
+      case 'Escape':
+        setIsOpen(false);
+        break;
+      case 'Enter':
+        setActiveIndex(0);
+        setIsOpen(false);
+        updateValue(options[activeIndex]);
+        break;
+      case 'ArrowUp':
+        setActiveIndex((prevIndex) =>
+          prevIndex > 0 ? prevIndex - 1 : options.length - 1
+        );
+        break;
+      case 'ArrowDown':
+        setActiveIndex((prevIndex) =>
+          prevIndex < options.length - 1 ? prevIndex + 1 : 0
+        );
+        break;
     }
   };
 
-  const handleOptionClick = (e: React.MouseEvent<HTMLElement>) => {
+  const handleOptionClick = (e: MouseEvent<HTMLElement>) => {
     const { index } = e.currentTarget.dataset;
     if (!index) {
       return;
     }
 
     const active = parseInt(index, 10);
-    setActive(0);
+    setActiveIndex(0);
+    setIsOpen(false);
     updateValue(options[active]);
-    setIsShow(false);
   };
 
   return (
-    <div className="autocomplete" ref={divRef}>
+    <div className="autocomplete" ref={autocompleteRef}>
       {label && (
         <label htmlFor="sync-auto">
-          {label} {loading && "loading"}
+          {label} {loading && 'loading'}
         </label>
       )}
       <input
@@ -75,22 +109,28 @@ const Autocomplete = ({
         value={input}
         onChange={handleInputChange}
         onKeyDown={handleInputKeyDown}
+        role="combobox"
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        aria-controls="autocomplete-list"
       />
-      <div className="autocomplete-items">
-        {isShow &&
+      <ul className="autocomplete-list" ref={listRef}>
+        {isOpen &&
           options.map((option, index) => (
-            <div
+            <li
               key={option}
+              role="option"
+              aria-selected={index === activeIndex}
               data-index={index}
-              className={index === active ? "autocomplete-active" : ""}
+              className={index === activeIndex ? 'autocomplete-active' : ''}
               onClick={handleOptionClick}
             >
               <Word word={option} str={input} />
-            </div>
+            </li>
           ))}
-      </div>
+      </ul>
     </div>
   );
-};
+}
 
 export default Autocomplete;

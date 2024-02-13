@@ -1,24 +1,50 @@
-import React from "react";
-import { useOutsideClick } from "./utils";
-import Word from "./components/Word";
-import "./Autocomplete.css";
+import {
+  ChangeEvent,
+  MouseEvent,
+  KeyboardEvent,
+  ElementRef,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+import { useOutsideClick } from './utils';
+import Word from './components/Word';
+import './Autocomplete.css';
 
-type AutocompleteProps = {
+type Props = {
   label?: string;
   options: string[];
 };
 
-const Autocomplete = ({ label, options }: AutocompleteProps) => {
-  const [active, setActive] = React.useState<number>(0);
-  const [filtered, setFiltered] = React.useState<string[]>([]);
-  const [input, setInput] = React.useState<string>("");
-  const divRef = React.useRef<HTMLDivElement>(null);
+function Autocomplete({ label, options }: Props) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [filtered, setFiltered] = useState<string[]>([]);
+  const [input, setInput] = useState('');
 
-  useOutsideClick(divRef, () => {
-    setFiltered([]);
+  const autocompleteRef = useRef<ElementRef<'div'>>(null);
+  const listRef = useRef<ElementRef<'ul'>>(null);
+
+  useOutsideClick(autocompleteRef, () => {
+    setIsOpen(false);
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    // Scroll to active options when it goes beyond the visible part
+    console.log(listRef.current, activeIndex);
+    if (listRef.current && activeIndex !== -1) {
+      const activeElement = listRef.current.children[activeIndex];
+      console.log(activeElement);
+      if (activeElement) {
+        activeElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+        });
+      }
+    }
+  }, [activeIndex]);
+
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const input = e.target.value;
 
     const filteredOptions = input
@@ -28,37 +54,52 @@ const Autocomplete = ({ label, options }: AutocompleteProps) => {
         )
       : [];
 
-    setActive(0);
+    setActiveIndex(0);
+    setIsOpen(true);
     setFiltered(filteredOptions);
     setInput(e.target.value);
   };
 
-  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.code === "Enter") {
-      setActive(0);
-      setInput(filtered[active]);
-      setFiltered([]);
-    } else if (e.code === "ArrowUp") {
-      return active === 0 ? null : setActive(active - 1);
-    } else if (e.code === "ArrowDown") {
-      return active - 1 === filtered.length ? null : setActive(active + 1);
+  const handleInputKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (['Escape', 'Enter', 'ArrowUp', 'ArrowDown'].includes(e.code)) {
+      e.preventDefault();
+    }
+    switch (e.code) {
+      case 'Escape':
+        setIsOpen(false);
+        break;
+      case 'Enter':
+        setActiveIndex(0);
+        setIsOpen(false);
+        setInput(filtered[activeIndex]);
+        break;
+      case 'ArrowUp':
+        setActiveIndex((prevIndex) =>
+          prevIndex > 0 ? prevIndex - 1 : filtered.length - 1
+        );
+        break;
+      case 'ArrowDown':
+        setActiveIndex((prevIndex) =>
+          prevIndex < filtered.length - 1 ? prevIndex + 1 : 0
+        );
+        break;
     }
   };
 
-  const handleOptionClick = (e: React.MouseEvent<HTMLElement>) => {
+  const handleOptionClick = (e: MouseEvent<HTMLElement>) => {
     const { index } = e.currentTarget.dataset;
     if (!index) {
       return;
     }
 
     const active = parseInt(index, 10);
-    setActive(0);
+    setActiveIndex(0);
+    setIsOpen(false);
     setInput(filtered[active]);
-    setFiltered([]);
   };
 
   return (
-    <div className="autocomplete" ref={divRef}>
+    <div className="autocomplete" ref={autocompleteRef}>
       {label && <label htmlFor="sync-auto">{label}</label>}
       <input
         id="sync-auto"
@@ -67,21 +108,28 @@ const Autocomplete = ({ label, options }: AutocompleteProps) => {
         value={input}
         onChange={handleInputChange}
         onKeyDown={handleInputKeyDown}
+        role="combobox"
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        aria-controls="autocomplete-list"
       />
-      <div className="autocomplete-items">
-        {filtered.map((option, index) => (
-          <div
-            key={option}
-            data-index={index}
-            className={index === active ? "autocomplete-active" : ""}
-            onClick={handleOptionClick}
-          >
-            <Word word={option} str={input} />
-          </div>
-        ))}
-      </div>
+      <ul className="autocomplete-list" ref={listRef}>
+        {isOpen &&
+          filtered.map((option, index) => (
+            <li
+              key={option}
+              role="option"
+              aria-selected={index === activeIndex}
+              data-index={index}
+              className={index === activeIndex ? 'autocomplete-active' : ''}
+              onClick={handleOptionClick}
+            >
+              <Word word={option} str={input} />
+            </li>
+          ))}
+      </ul>
     </div>
   );
-};
+}
 
 export default Autocomplete;
