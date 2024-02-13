@@ -1,7 +1,7 @@
-import React from "react";
+import React from 'react';
 
-export const useDebounce = (value: string, delay: number): string => {
-  const [debouncedValue, setDebouncedValue] = React.useState(value);
+export const useDebounce = <T>(value: T, delay: number): T => {
+  const [debouncedValue, setDebouncedValue] = React.useState<T>(value);
 
   React.useEffect(() => {
     const handler = setTimeout(() => setDebouncedValue(value), delay);
@@ -15,7 +15,7 @@ export const useDebounce = (value: string, delay: number): string => {
 };
 
 export const useOutsideClick = (
-  ref: React.RefObject<HTMLDivElement>,
+  ref: React.RefObject<HTMLElement>,
   callback: () => void
 ) => {
   React.useEffect(() => {
@@ -24,10 +24,10 @@ export const useOutsideClick = (
         callback();
       }
     };
-    document.addEventListener("mousedown", handleOutsideClick);
+    document.addEventListener('mousedown', handleOutsideClick);
 
     return () => {
-      document.removeEventListener("mousedown", handleOutsideClick);
+      document.removeEventListener('mousedown', handleOutsideClick);
     };
   }, [ref, callback]);
 };

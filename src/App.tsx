@@ -1,16 +1,16 @@
-import React from "react";
+import React from 'react';
 
-import Autocomplete from "./Autocomplete";
-import AutocompleteAsync from "./AutocompleteAsync";
+import Autocomplete from './Autocomplete';
+import AutocompleteAsync from './AutocompleteAsync';
 
-import { countries } from "./data";
-import { useDebounce } from "./utils";
-import { useGetCountries } from "./api";
+import { countries } from './data';
+import { useDebounce } from './utils';
+import { useGetCountries } from './api';
 
-import "./App.css";
+import './App.css';
 
 function App() {
-  const [asyncInput, setAsyncInput] = React.useState<string>("");
+  const [asyncInput, setAsyncInput] = React.useState('');
   const debouncedAsyncInput = useDebounce(asyncInput, 300);
   const { data, loading } = useGetCountries(debouncedAsyncInput);
 
