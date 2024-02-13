@@ -31,10 +31,9 @@ function Autocomplete({ label, options }: Props) {
 
   useEffect(() => {
     // Scroll to active options when it goes beyond the visible part
-    console.log(listRef.current, activeIndex);
     if (listRef.current && activeIndex !== -1) {
       const activeElement = listRef.current.children[activeIndex];
-      console.log(activeElement);
+
       if (activeElement) {
         activeElement.scrollIntoView({
           behavior: 'smooth',

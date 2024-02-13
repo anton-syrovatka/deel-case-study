@@ -61,7 +61,6 @@ function Autocomplete({ label, loading, options, onChange }: Props) {
     if (['Escape', 'Enter', 'ArrowUp', 'ArrowDown'].includes(e.code)) {
       e.preventDefault();
     }
-    console.log({ code: e.code, key: e.key });
     switch (e.code) {
       case 'Escape':
         setIsOpen(false);

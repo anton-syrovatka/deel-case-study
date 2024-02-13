@@ -4,6 +4,7 @@ import get from './get';
 interface Country {
   name: {
     common: string;
+    official: string;
   };
 }
 
@@ -25,7 +26,7 @@ export const useGetCountries = (input: string) => {
           `https://restcountries.com/v3.1/name/${input}`,
           controller
         );
-        const countries = data.map((c) => c.name.common);
+        const countries = data.map((c) => c.name.official);
 
         const filteredCountries = input
           ? countries.filter(
