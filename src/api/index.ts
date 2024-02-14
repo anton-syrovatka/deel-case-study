@@ -38,7 +38,7 @@ export const useGetCountries = (input: string) => {
 
         setLoading(false);
         setData(filteredCountries);
-      } catch (e: any) {
+      } catch (error) {
         setData([]);
       } finally {
         setLoading(false);
